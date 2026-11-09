@@ -42,7 +42,7 @@
             "bias_regularizer": null,
             "activity_regularizer": null,
             "bias_constraint": null,
-            "name": "conv2d_Conv2D1",
+            "name": "conv1",
             "trainable": true,
             "batch_input_shape": [
               null,
@@ -66,7 +66,17 @@
               2
             ],
             "data_format": "channels_last",
-            "name": "max_pooling2d_MaxPooling2D1",
+            "name": "pool1",
+            "trainable": true
+          }
+        },
+        {
+          "class_name": "Dropout",
+          "config": {
+            "rate": 0.15,
+            "noise_shape": null,
+            "seed": null,
+            "name": "drop1",
             "trainable": true
           }
         },
@@ -108,7 +118,7 @@
             "bias_regularizer": null,
             "activity_regularizer": null,
             "bias_constraint": null,
-            "name": "conv2d_Conv2D2",
+            "name": "conv2",
             "trainable": true
           }
         },
@@ -125,14 +135,24 @@
               2
             ],
             "data_format": "channels_last",
-            "name": "max_pooling2d_MaxPooling2D2",
+            "name": "pool2",
+            "trainable": true
+          }
+        },
+        {
+          "class_name": "Dropout",
+          "config": {
+            "rate": 0.2,
+            "noise_shape": null,
+            "seed": null,
+            "name": "drop2",
             "trainable": true
           }
         },
         {
           "class_name": "Flatten",
           "config": {
-            "name": "flatten_Flatten1",
+            "name": "flatten",
             "trainable": true
           }
         },
@@ -160,17 +180,17 @@
             "activity_regularizer": null,
             "kernel_constraint": null,
             "bias_constraint": null,
-            "name": "dense_Dense1",
+            "name": "dense1",
             "trainable": true
           }
         },
         {
           "class_name": "Dropout",
           "config": {
-            "rate": 0.2,
+            "rate": 0.25,
             "noise_shape": null,
             "seed": null,
-            "name": "dropout_Dropout1",
+            "name": "drop_dense",
             "trainable": true
           }
         },
@@ -198,7 +218,7 @@
             "activity_regularizer": null,
             "kernel_constraint": null,
             "bias_constraint": null,
-            "name": "dense_Dense2",
+            "name": "output_softmax",
             "trainable": true
           }
         }
@@ -217,7 +237,7 @@
       ],
       "weights": [
         {
-          "name": "conv2d_Conv2D1/kernel",
+          "name": "conv1/kernel",
           "shape": [
             3,
             3,
@@ -227,14 +247,14 @@
           "dtype": "float32"
         },
         {
-          "name": "conv2d_Conv2D1/bias",
+          "name": "conv1/bias",
           "shape": [
             16
           ],
           "dtype": "float32"
         },
         {
-          "name": "conv2d_Conv2D2/kernel",
+          "name": "conv2/kernel",
           "shape": [
             3,
             3,
@@ -244,14 +264,14 @@
           "dtype": "float32"
         },
         {
-          "name": "conv2d_Conv2D2/bias",
+          "name": "conv2/bias",
           "shape": [
             32
           ],
           "dtype": "float32"
         },
         {
-          "name": "dense_Dense1/kernel",
+          "name": "dense1/kernel",
           "shape": [
             2048,
             64
@@ -259,14 +279,14 @@
           "dtype": "float32"
         },
         {
-          "name": "dense_Dense1/bias",
+          "name": "dense1/bias",
           "shape": [
             64
           ],
           "dtype": "float32"
         },
         {
-          "name": "dense_Dense2/kernel",
+          "name": "output_softmax/kernel",
           "shape": [
             64,
             26
@@ -274,7 +294,7 @@
           "dtype": "float32"
         },
         {
-          "name": "dense_Dense2/bias",
+          "name": "output_softmax/bias",
           "shape": [
             26
           ],

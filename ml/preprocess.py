@@ -30,14 +30,19 @@ HAND_CONNECTIONS = [
 
 def normalize_landmarks(landmarks):
     """
-    Normalizes 21 3D landmarks relative to wrist and scales to bounding box.
+    Normalizes 21 landmarks relative to wrist and scales to bounding box.
+    Automatically applies handedness/mirroring invariance: ensures thumb points left.
     landmarks: shape (21, 2) or (21, 3)
-    Returns: normalized array of shape (21, 2) in range [0, 1]
+    Returns: normalized array of shape (21, 2)
     """
     pts = np.array(landmarks)[:, :2].copy()
     
+    # Check handedness: if thumb MCP (landmark 2) has x > pinky MCP (landmark 17), flip x
+    if pts[2, 0] > pts[17, 0]:
+        pts[:, 0] = -pts[:, 0]
+    
     # Translate wrist (landmark 0) to origin
-    wrist = pts[0]
+    wrist = pts[0].copy()
     pts -= wrist
     
     # Scale invariance: divide by maximum span
@@ -47,7 +52,7 @@ def normalize_landmarks(landmarks):
     
     return pts
 
-def landmarks_to_image(landmarks, img_size=64):
+def landmarks_to_image(landmarks, img_size=32):
     """
     Renders normalized 21 hand landmarks onto a 2D grayscale image (img_size x img_size)
     with bones and joints drawn with antialiased lines.
@@ -57,29 +62,28 @@ def landmarks_to_image(landmarks, img_size=64):
     
     pts = normalize_landmarks(landmarks)
     
-    # Fit into image bounds with margin (padding = 0.15)
-    margin = 0.15
-    usable_size = img_size * (1.0 - 2 * margin)
+    # Fit into image bounds with margin (margin = 3 pixels)
+    margin = 3.0
+    usable_size = img_size - 2 * margin
     
-    # Map [-1, 1] range to canvas coordinates
     # Find bounding box of normalized points
     min_xy = pts.min(axis=0)
     max_xy = pts.max(axis=0)
     range_xy = np.maximum(max_xy - min_xy, 1e-5)
     scale = usable_size / np.max(range_xy)
     
-    pixel_pts = (pts - min_xy) * scale + (img_size * margin)
+    pixel_pts = (pts - min_xy) * scale + margin
     pixel_pts = np.clip(pixel_pts, 0, img_size - 1).astype(np.int32)
     
     # Draw bone connections
     for start_idx, end_idx in HAND_CONNECTIONS:
         pt1 = tuple(pixel_pts[start_idx])
         pt2 = tuple(pixel_pts[end_idx])
-        cv2.line(canvas, pt1, pt2, color=0.7, thickness=2, lineType=cv2.LINE_AA)
+        cv2.line(canvas, pt1, pt2, color=0.6, thickness=1, lineType=cv2.LINE_AA)
     
     # Draw landmark joints (dots)
     for idx, pt in enumerate(pixel_pts):
-        radius = 3 if idx in [4, 8, 12, 16, 20] else 2  # Larger dots for fingertips
+        radius = 2 if idx in [4, 8, 12, 16, 20] else 1  # Fingertips
         cv2.circle(canvas, tuple(pt), radius=radius, color=1.0, thickness=-1, lineType=cv2.LINE_AA)
         
     return np.expand_dims(canvas, axis=-1)

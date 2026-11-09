@@ -4,7 +4,7 @@ import {
   AlertCircle, Volume2, Plus, Delete, Layers, Activity, Eye
 } from 'lucide-react';
 import { getHandLandmarker, drawHandLandmarks } from '../services/handDetector';
-import { predictASLLetter, getModelStatus } from '../services/cnnClassifier';
+import { predictASLLetter, getModelStatus, resetClassifierSmoothing } from '../services/cnnClassifier';
 
 export default function LiveRecognition() {
   const videoRef = useRef(null);
@@ -30,10 +30,13 @@ export default function LiveRecognition() {
   const [history, setHistory] = useState([]);
   const [spelledText, setSpelledText] = useState('');
   const [isSpeaking, setIsSpeaking] = useState(false);
+  const [stabilityStatus, setStabilityStatus] = useState('Idle'); // 'Idle', 'Tracking', 'Locked'
 
-  // Last detected landmark cache
+  // Last detected landmark cache & consensus window
   const lastLandmarksRef = useRef(null);
   const streamRef = useRef(null);
+  const consensusBufferRef = useRef([]);
+  const stableLetterRef = useRef('-');
 
   // Start Camera
   const startCamera = async () => {
@@ -98,9 +101,13 @@ export default function LiveRecognition() {
       ctx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
     }
 
+    resetClassifierSmoothing();
+    consensusBufferRef.current = [];
+    stableLetterRef.current = '-';
     setCameraActive(false);
     setCameraStatus('Camera Off');
     setHandDetected(false);
+    setStabilityStatus('Idle');
     setPrediction({
       letter: '-',
       confidence: 0,
@@ -146,11 +153,39 @@ export default function LiveRecognition() {
               // Predict letter with CNN
               const res = await predictASLLetter(currentLandmarks);
               if (res) {
-                setPrediction(res);
+                // Consensus & hysteresis filter to eliminate flickering
+                if (res.isConfident && res.letter !== '...') {
+                  const buf = consensusBufferRef.current;
+                  buf.push(res.letter);
+                  if (buf.length > 4) buf.shift();
+
+                  const counts = {};
+                  buf.forEach(l => { counts[l] = (counts[l] || 0) + 1; });
+                  const [mostFrequent, freq] = Object.entries(counts).sort((a, b) => b[1] - a[1])[0];
+
+                  if (freq >= 3 || res.confidence >= 80) {
+                    stableLetterRef.current = mostFrequent;
+                    setStabilityStatus('Locked');
+                  } else {
+                    setStabilityStatus('Tracking');
+                  }
+                } else {
+                  consensusBufferRef.current = [];
+                  setStabilityStatus(res.confidence > 35 ? 'Aligning' : 'Idle');
+                }
+
+                setPrediction({
+                  ...res,
+                  letter: stableLetterRef.current !== '-' ? stableLetterRef.current : (res.isConfident ? res.letter : '...')
+                });
               }
             } else {
               setHandDetected(false);
               lastLandmarksRef.current = null;
+              resetClassifierSmoothing();
+              consensusBufferRef.current = [];
+              stableLetterRef.current = '-';
+              setStabilityStatus('Idle');
             }
           } catch (err) {
             console.error('Frame detection error:', err);
@@ -255,6 +290,11 @@ export default function LiveRecognition() {
           <div className={`badge-status ${handDetected ? 'active' : 'inactive'}`}>
             <span className={`status-dot ${handDetected ? 'pulse' : ''}`} />
             <span>{handDetected ? 'Hand Tracked (21 Pts)' : 'No Hand in Frame'}</span>
+          </div>
+
+          <div className={`badge-status ${stabilityStatus === 'Locked' ? 'active' : stabilityStatus === 'Tracking' ? 'warning' : 'inactive'}`}>
+            <span className={`status-dot ${stabilityStatus === 'Locked' ? 'pulse' : ''}`} />
+            <span>State: {stabilityStatus}</span>
           </div>
         </div>
       </div>
@@ -532,7 +572,7 @@ export default function LiveRecognition() {
             )}
           </div>
 
-          {/* CNN Landmark Skeleton Stream Preview (64x64) */}
+          {/* CNN Landmark Skeleton Stream Preview (32x32) */}
           <div className="glass-card" style={{
             display: 'flex',
             alignItems: 'center',
@@ -540,8 +580,8 @@ export default function LiveRecognition() {
             padding: '1rem 1.25rem'
           }}>
             <div style={{
-              width: '64px',
-              height: '64px',
+              width: '56px',
+              height: '56px',
               background: '#000',
               border: '1px solid rgba(139, 92, 246, 0.4)',
               borderRadius: '8px',
@@ -553,7 +593,7 @@ export default function LiveRecognition() {
               {prediction.rasterPreview ? (
                 <img
                   src={prediction.rasterPreview}
-                  alt="CNN 64x64 Landmark Raster Input"
+                  alt="CNN 32x32 Landmark Raster Input"
                   style={{ width: '100%', height: '100%', imageRendering: 'pixelated' }}
                 />
               ) : (
@@ -563,10 +603,10 @@ export default function LiveRecognition() {
 
             <div style={{ flex: 1 }}>
               <div style={{ fontSize: '0.88rem', fontWeight: 600, color: 'var(--text-main)' }}>
-                CNN Landmark Input (64&times;64&times;1)
+                CNN Landmark Input (32&times;32&times;1)
               </div>
               <div style={{ fontSize: '0.76rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>
-                Normalized wrist coordinates &amp; antialiased skeletal bone graph passed to Conv2D layers.
+                Handedness-invariant normalized coordinates &amp; antialiased skeleton bones fed directly to Conv2D layers.
               </div>
             </div>
           </div>
