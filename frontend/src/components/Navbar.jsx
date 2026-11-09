@@ -1,10 +1,11 @@
 import React from 'react';
-import { Camera, BookOpen, BarChart3, Info, Home, Sparkles, Activity } from 'lucide-react';
+import { Camera, BookOpen, BarChart3, Info, Home, Sparkles, Activity, Award } from 'lucide-react';
 
 export default function Navbar({ activeTab, setActiveTab, cameraActive }) {
   const navItems = [
     { id: 'home', label: 'Home', icon: Home },
     { id: 'recognition', label: 'Live Recognition', icon: Camera, badge: cameraActive ? 'LIVE' : null },
+    { id: 'evaluation', label: 'Webcam Evaluation', icon: Award },
     { id: 'gallery', label: 'ASL Alphabet', icon: BookOpen },
     { id: 'performance', label: 'Model Metrics', icon: BarChart3 },
     { id: 'about', label: 'About Project', icon: Info },

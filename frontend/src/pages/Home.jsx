@@ -1,5 +1,5 @@
 import React from 'react';
-import { Camera, Sparkles, Cpu, Eye, ShieldCheck, Zap, Layers, ArrowRight, PlayCircle, BookOpen } from 'lucide-react';
+import { Camera, Sparkles, Cpu, Eye, ShieldCheck, Zap, Layers, ArrowRight, PlayCircle, BookOpen, Award } from 'lucide-react';
 import { ASL_ALPHABET } from '../data/aslData';
 
 export default function Home({ onNavigate }) {
@@ -138,6 +138,14 @@ export default function Home({ onNavigate }) {
               <span>Start Real-Time Recognition</span>
             </button>
 
+            <button
+              className="btn-secondary"
+              style={{ fontSize: '1.05rem', padding: '0.9rem 1.8rem' }}
+              onClick={() => onNavigate('evaluation')}
+            >
+              <Award size={19} color="#a78bfa" />
+              <span>Real-World Webcam Test</span>
+            </button>
             <button
               className="btn-secondary"
               style={{ fontSize: '1.05rem', padding: '0.9rem 1.8rem' }}

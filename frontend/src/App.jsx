@@ -3,6 +3,7 @@ import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import Home from './pages/Home';
 import LiveRecognition from './pages/LiveRecognition';
+import WebcamEvaluation from './pages/WebcamEvaluation';
 import AlphabetGallery from './pages/AlphabetGallery';
 import ModelPerformance from './pages/ModelPerformance';
 import AboutProject from './pages/AboutProject';
@@ -37,6 +38,9 @@ export default function App() {
         )}
         {activeTab === 'recognition' && (
           <LiveRecognition />
+        )}
+        {activeTab === 'evaluation' && (
+          <WebcamEvaluation />
         )}
         {activeTab === 'gallery' && (
           <AlphabetGallery onPracticeLetter={handlePracticeLetter} />
