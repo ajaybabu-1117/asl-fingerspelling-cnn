@@ -1,5 +1,8 @@
 # ASL Alphabet Fingerspelling Recognition Using CNN on Hand-Landmark Images
 
+[![Live Production Demo](https://img.shields.io/badge/Demo-asl--fingerspelling--cnn.vercel.app-10b981.svg?style=for-the-badge&logo=vercel)](https://asl-fingerspelling-cnn.vercel.app)
+[![GitHub Repository](https://img.shields.io/badge/GitHub-ajaybabu--1117%2Fasl--fingerspelling--cnn-181717.svg?style=for-the-badge&logo=github)](https://github.com/ajaybabu-1117/asl-fingerspelling-cnn)
+
 [![React](https://img.shields.io/badge/React-19.0-61dafb.svg?logo=react&logoColor=black)](https://react.dev/)
 [![Vite](https://img.shields.io/badge/Vite-5.0-646cff.svg?logo=vite&logoColor=white)](https://vitejs.dev/)
 [![MediaPipe](https://img.shields.io/badge/MediaPipe-Tasks_Vision-0078d4.svg?logo=google&logoColor=white)](https://developers.google.com/mediapipe)
@@ -7,6 +10,9 @@
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
 An end-to-end, real-time **American Sign Language (ASL) Alphabet Fingerspelling Recognition** web application designed for academic demonstrations, major/minor college projects, and accessibility research.
+
+🚀 **Live Production Application:** [https://asl-fingerspelling-cnn.vercel.app](https://asl-fingerspelling-cnn.vercel.app)  
+📂 **Source Code Repository:** [https://github.com/ajaybabu-1117/asl-fingerspelling-cnn](https://github.com/ajaybabu-1117/asl-fingerspelling-cnn)
 
 Recognizes ASL alphabet letters **A through Z** from a standard live webcam feed by combining **MediaPipe Hand Landmark tracking (21 keypoints)** with a custom **Convolutional Neural Network (CNN)** operating on spatially normalized hand-landmark skeleton images.
 
