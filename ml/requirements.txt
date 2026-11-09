@@ -1,0 +1,10 @@
+# ASL Alphabet Fingerspelling CNN - Machine Learning Pipeline Requirements
+tensorflow>=2.15.0
+mediapipe>=0.10.9
+opencv-python>=4.8.0
+numpy>=1.24.3
+scikit-learn>=1.3.0
+matplotlib>=3.8.0
+seaborn>=0.13.0
+tensorflowjs>=4.17.0
+pillow>=10.0.0
